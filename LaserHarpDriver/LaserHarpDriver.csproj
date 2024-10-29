@@ -1,0 +1,63 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UseWPF>true</UseWPF>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="resource\indexs\dic.json" />
+    <None Remove="resource\indexs\img.json" />
+    <None Remove="resource\indexs\index1.json" />
+    <None Remove="resource\indexs\index2.json" />
+    <None Remove="resource\indexs\index3.json" />
+    <None Remove="resource\indexs\index4.json" />
+    <None Remove="resource\indexs\index5.json" />
+    <None Remove="resource\indexs\index6.json" />
+    <None Remove="resource\sounds\acceptbutton.mp3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="resource\indexs\dic.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="resource\indexs\img.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="resource\indexs\index1.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="resource\indexs\index2.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="resource\indexs\index3.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="resource\indexs\index4.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="resource\indexs\index5.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="resource\indexs\index6.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="resource\sounds\acceptbutton.mp3">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.IO.Ports" Version="8.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="resource\images\Onpu.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+</Project>
