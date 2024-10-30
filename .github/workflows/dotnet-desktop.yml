@@ -1,0 +1,50 @@
+name: .NET Desktop
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build
+    runs-on: windows-latest
+    strategy:
+      matrix:
+        configuration: [Debug, Release]
+    env:
+      Solution_Name: LaserHarp
+      Project_Directory: LaserHarpDriver
+      Project_Path: LaserHarpDriver\LaserHarpDriver.csproj
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 8.0.x
+
+    - name: Setup MSBuild
+      uses: microsoft/setup-msbuild@v2
+
+    - name: Execute unit tests
+      run: dotnet test
+
+    - name: Restore the application
+      run: msbuild $env:Solution_Name.sln /t:Restore /p:Configuration=${{ matrix.configuration }}
+
+    - name: Build the application
+      run: msbuild $env:Project_Path /p:Configuration=${{ matrix.configuration }}
+
+    - name: Set commit env
+      run: Write-Output "commit=$("${{ github.sha }}".Substring(0,7))" | Out-File -FilePath $env:GITHUB_ENV -Encoding UTF8 -Append
+
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ env.Solution_Name }}-${{ matrix.configuration }}@${{ env.commit }}
+        path: ${{ env.Project_Directory }}\bin\${{ matrix.configuration }}\net8.0-windows\*
