@@ -1,26 +1,15 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
-using System.Security.Cryptography;
-using System.IO;
 
 namespace LaserHarpDriver.screens
 {
     /// <summary>
     /// settingscreen.xaml の相互作用ロジック
     /// </summary>
-    public partial class settingscreen : Window
+    public partial class SettingScreen : Window
     {
         //リストアップされる音楽データ
         ObservableCollection<DicJson> DicItem = new ObservableCollection<DicJson>();
@@ -39,7 +28,7 @@ namespace LaserHarpDriver.screens
             }
             set { retvalue = value; }
         }
-        public settingscreen(Window owner)
+        public SettingScreen(Window owner)
         {
             InitializeComponent();
 
@@ -56,7 +45,7 @@ namespace LaserHarpDriver.screens
         {
             //テスト再生
             //スライダーの値を反映してから再生、、さては再生中に音量変更できないな？、、、許して
-            if(null!= AllSound.SelectedIndex)
+            //if(null!= AllSound.SelectedIndex)
             {
                 Media_test.Source = new Uri("resource/sounds/"+DicItem[AllSound.SelectedIndex].filepath, UriKind.RelativeOrAbsolute);
                 Media_test.Volume = Play_bar.Value / 100;
@@ -78,10 +67,10 @@ namespace LaserHarpDriver.screens
 
         private void new_file_Click(object sender, RoutedEventArgs e)
         {
-            int result = Backcode.AdditionalNewsound(DicItem, ((Radio_which_sound.IsChecked == true) ? true : false));
+            int result = Backcode.AdditionalNewsound(DicItem, ((bool)Radio_which_sound.IsChecked ? true : false));
             if (result == 0)
             {
-                MessageBox.Show("追加されました");
+                //MessageBox.Show("追加されました");
                 if (Radio_which_sound.IsChecked == true)//ラジオボタンコントロールがnull許容なのめんどくせえ！
                 {
                     DicItem = Backcode.DicRead(true);
@@ -94,7 +83,7 @@ namespace LaserHarpDriver.screens
             }
             else
             {
-                MessageBox.Show("追加されませんでした");
+                //MessageBox.Show("追加されませんでした");
             }
         }
 
@@ -133,5 +122,11 @@ namespace LaserHarpDriver.screens
         {
             Media_test.Stop();
         }
+
+        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            Media_test.Stop();
+        }
+
     }
 }

@@ -1,0 +1,10 @@
+* text=auto eol=crlf
+.git* eol=lf
+*.cs diff=csharp
+*.sln merge=binary
+*.json eol=lf
+*.yml eol=lf
+*.mp3 binary
+*.m4a binary
+*.png binary
+*.jpg binary

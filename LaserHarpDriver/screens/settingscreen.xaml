@@ -1,47 +1,52 @@
-﻿<Window x:Class="LaserHarpDriver.screens.settingscreen"
+﻿<Window x:Class="LaserHarpDriver.screens.SettingScreen"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:LaserHarpDriver.screens"
         mc:Ignorable="d"
-        Background="#FF2B2B2B"
-        Title="settingscreen" Height="500" Width="800">
+        Closing="Window_Closing"
+        Background="#FF333333"
+        Title="ファイルの変更" Height="480" Width="800">
     <Grid>
-        <ListView x:Name="AllSound" Margin="0,75,200,0" Background="Gray" ItemsSource="{Binding DicItem}">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="387*"/>
+            <ColumnDefinition Width="13*"/>
+        </Grid.ColumnDefinitions>
+        <ListView x:Name="AllSound" Margin="0,75,174,0" Background="#FFF0F0F0" FontSize="20" ItemsSource="{Binding DicItem}">
             <ListView.View>
                 <GridView>
 
                     <GridViewColumn
-                    Width="500" Header="filepath" 
+                    Width="500" Header="ファイル名"
                     DisplayMemberBinding="{Binding filepath}" />
                 </GridView>
             </ListView.View>
         </ListView>
-        <ListView x:Name="AllImage" ItemsSource="{Binding DicItem}" Margin="0,75,200,0" FontSize="32" Background="#FF353535">
+        <ListView x:Name="AllImage" ItemsSource="{Binding DicItem}" Margin="0,75,174,0" FontSize="20" Background="#FFF0F0F0">
             <ListView.View>
                 <GridView>
-                    <GridViewColumn Header="Icon" Width="150">
+                    <GridViewColumn Header="画像" Width="90">
                         <GridViewColumn.CellTemplate>
                             <DataTemplate>
-                                <Image Source="{Binding imageSource}" Width="150" Height="150"/>
+                                <Image Source="{Binding imageSource}" Width="90" Height="90"/>
                             </DataTemplate>
                         </GridViewColumn.CellTemplate>
                     </GridViewColumn>
                     <GridViewColumn
-                                    Width="500" Header="Name" 
+                                    Width="500" Header="ファイル名"
                                     DisplayMemberBinding="{Binding filepath}" />
                 </GridView>
             </ListView.View>
         </ListView>
 
-        <RadioButton x:Name="Radio_which_image" Foreground="White" FontSize="32" Content="画像" Margin="300,20,100,375" Checked="Radio_which_image_Checked" />
-        <RadioButton x:Name="Radio_which_sound" Foreground="White" FontSize="32" Content="音楽ファイル" Margin="50,20,500,375" Checked="Radio_which_sound_Checked"/>
-        <MediaElement x:Name="Media_test" UnloadedBehavior="Manual" LoadedBehavior="Manual"/>
-        <Slider x:Name="Play_bar" Margin="500,20,10,350" TickPlacement="Both" Minimum="0" Maximum="100"/>
-        <Button x:Name="test_Play" Margin="600,78,10,317" Content="テスト再生" Click="test_Play_Click" FontSize="28"/>
-        <Button x:Name="test_Stop" Margin="600,198,10,197" Content="テスト停止" Click="test_Stop_Click" FontSize="28"/>
-        <Button x:Name="new_file" Margin="600,323,0,90" Content="新規ファイル登録" Click="new_file_Click" FontSize="28"/>
-        <Button x:Name="return_filepath" Margin="600,407,0,10" Content="音楽ファイル選択" FontSize="28" Click="return_filepath_Click"/>
+        <RadioButton x:Name="Radio_which_image" Foreground="White" FontSize="32" Content="画像" Margin="300,20,74,375" Checked="Radio_which_image_Checked" />
+        <RadioButton x:Name="Radio_which_sound" Foreground="White" FontSize="32" Content="音楽" Margin="50,20,474,375" Checked="Radio_which_sound_Checked"/>
+        <MediaElement x:Name="Media_test" UnloadedBehavior="Manual" LoadedBehavior="Manual" Height="484" VerticalAlignment="Top" Grid.ColumnSpan="2"/>
+        <Slider x:Name="Play_bar" Margin="497,20,13,350" TickPlacement="Both" Minimum="0" Maximum="100" Grid.ColumnSpan="2" Value="105" SmallChange="1"/>
+        <Button x:Name="test_Play" Margin="605,114,10,281" Content="再生" Click="test_Play_Click" FontSize="28" Grid.ColumnSpan="2"/>
+        <Button x:Name="test_Stop" Margin="605,198,10,197" Content="停止" Click="test_Stop_Click" FontSize="28" Grid.ColumnSpan="2"/>
+        <Button x:Name="new_file" Margin="605,319,10,75" Content="ファイルを追加" Click="new_file_Click" FontSize="20" Grid.ColumnSpan="2"/>
+        <Button x:Name="return_filepath" Margin="605,389,10,10" Content="選択して変更" FontSize="22" Click="return_filepath_Click" Grid.ColumnSpan="2"/>
     </Grid>
 </Window>

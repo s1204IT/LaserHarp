@@ -1,19 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-using System.Text.Json;
 using System.IO.Ports;
 using System.Windows.Controls.Primitives;
 
@@ -43,16 +34,15 @@ namespace LaserHarpDriver
             {
                 SoundItem = Backcode.Itemread(Pri);
                 SoundListView.ItemsSource = SoundItem;
-                Player1.Source = new Uri("./resource/sounds/" + SoundItem[0].filepath.ToString(), UriKind.RelativeOrAbsolute);
-                Player2.Source = new Uri("./resource/sounds/" + SoundItem[1].filepath.ToString(), UriKind.RelativeOrAbsolute);
-                Player3.Source = new Uri("./resource/sounds/" + SoundItem[2].filepath.ToString(), UriKind.RelativeOrAbsolute);
-                Player4.Source = new Uri("./resource/sounds/" + SoundItem[3].filepath.ToString(), UriKind.RelativeOrAbsolute);
-                Player5.Source = new Uri("./resource/sounds/" + SoundItem[4].filepath.ToString(), UriKind.RelativeOrAbsolute);
-                Player6.Source = new Uri("./resource/sounds/" + SoundItem[5].filepath.ToString(), UriKind.RelativeOrAbsolute);
+                var players = new[] { Player1, Player2, Player3, Player4, Player5, Player6 };
+                for (int i = 0; i < players.Length; i++)
+                {
+                    players[i].Source = new Uri($"./resource/sounds/{SoundItem[i].filepath}", UriKind.RelativeOrAbsolute);
+                }
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message);
+                MessageBox.Show(ex.Message, "Error occurred", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
         //debugコードどける
@@ -61,7 +51,7 @@ namespace LaserHarpDriver
            
             if (SoundListView.SelectedIndex < 0)
             {
-                MessageBox.Show("変更する音楽を選択してください");
+                MessageBox.Show("変更する音楽を選択してください", "選択エラー", MessageBoxButton.OK, MessageBoxImage.Exclamation);
                 return;
             }
 
@@ -85,7 +75,7 @@ namespace LaserHarpDriver
         private retValue SettingDialog()
         {
             //dialogウィンドウを定義
-            var dialog = new screens.settingscreen(this);
+            var dialog = new screens.SettingScreen(this);
             return ((bool)dialog.ShowDialog()) ? dialog.retvalue : null;
         }
 
@@ -118,11 +108,11 @@ namespace LaserHarpDriver
                 serialPort.Open();
                 serialPort.DataReceived += new SerialDataReceivedEventHandler(portReceive); // DataReceivedイベントを設定
 
-                MessageBox.Show("Succes");
+                MessageBox.Show("Data was sent!", "Done", MessageBoxButton.OK, MessageBoxImage.Information);
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message);
+                MessageBox.Show(ex.Message, "Error occurred", MessageBoxButton.OK, MessageBoxImage.Error);
             }
             return;
         }
@@ -146,22 +136,14 @@ namespace LaserHarpDriver
             switch (receivedData)
             {
                 case "A":
-                    Player1.Play();
-                    break;
                 case "B":
-                    Player2.Play();
-                    break;
                 case "C":
-                    Player3.Play();
-                    break;
                 case "D":
-                    Player4.Play();
-                    break;
                 case "E":
-                    Player5.Play();
-                    break;
                 case "F":
-                    Player6.Play();
+                    int playerIndex = receivedData[0] - 'A';
+                    var players = new[] { Player1, Player2, Player3, Player4, Player5, Player6 };
+                    players[playerIndex].Play();
                     break;
                 default:
                     // その他の文字は無視する
@@ -208,45 +190,30 @@ namespace LaserHarpDriver
 
         private void SoundListView_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (SoundListView.SelectedIndex == 0)
-                ItemvolumeSlider.Value = Player1.Volume * 100;
-            else if (SoundListView.SelectedIndex == 1)
-                ItemvolumeSlider.Value = Player2.Volume * 100;
-            else if (SoundListView.SelectedIndex == 2)
-                ItemvolumeSlider.Value = Player3.Volume * 100;
-            else if (SoundListView.SelectedIndex == 3)
-                ItemvolumeSlider.Value = Player4.Volume * 100;
-            else if (SoundListView.SelectedIndex == 4)
-                ItemvolumeSlider.Value = Player5.Volume * 100;
-            else if (SoundListView.SelectedIndex == 5)
-                ItemvolumeSlider.Value = Player6.Volume * 100;
+            var players = new[] { Player1, Player2, Player3, Player4, Player5, Player6 };
+            if (SoundListView.SelectedIndex >= 0 && SoundListView.SelectedIndex < players.Length)
+            {
+                ItemvolumeSlider.Value = players[SoundListView.SelectedIndex].Volume * 100;
+            }
         }
 
         private void commandBox_KeyDown(object sender, KeyEventArgs e)
         {
             //MessageBox.Show("Hello", e.Key.ToString());
-            if (e.Key == Key.D1) { Player1.Stop(); Player1.Play(); }
-            if (e.Key == Key.D2) { Player2.Stop(); Player2.Play(); }
-            if (e.Key == Key.D3) { Player3.Stop(); Player3.Play(); }
-            if (e.Key == Key.D4) { Player4.Stop(); Player4.Play(); }
-            if (e.Key == Key.D5) { Player5.Stop(); Player5.Play(); }
-            if (e.Key == Key.D6) { Player6.Stop(); Player6.Play(); }
+            var players = new[] { Player1, Player2, Player3, Player4, Player5, Player6 };
+            if (e.Key >= Key.D1 && e.Key <= Key.D6)
+            {
+                int index = e.Key - Key.D1;
+                players[index].Stop();
+                players[index].Play();
+            }
         }
         private void ItemvolumeSlider_DragCompleted(object sender, DragCompletedEventArgs e)
         {
             //選択しているアイテムに割り当てられているmediaElementのボリュームをスライダーの値に変更
-            if (SoundListView.SelectedIndex == 0)
-                Player1.Volume = ItemvolumeSlider.Value / 100;
-            else if (SoundListView.SelectedIndex == 1)
-                Player2.Volume = ItemvolumeSlider.Value / 100;
-            else if (SoundListView.SelectedIndex == 2)
-                Player3.Volume = ItemvolumeSlider.Value / 100;
-            else if (SoundListView.SelectedIndex == 3)
-                Player4.Volume = ItemvolumeSlider.Value / 100;
-            else if (SoundListView.SelectedIndex == 4)
-                Player5.Volume = ItemvolumeSlider.Value / 100;
-            else if (SoundListView.SelectedIndex == 5)
-                Player6.Volume = ItemvolumeSlider.Value / 100;
+            var players = new[] { Player1, Player2, Player3, Player4, Player5, Player6 };
+            if (SoundListView.SelectedIndex >= 0 && SoundListView.SelectedIndex < players.Length)
+                players[SoundListView.SelectedIndex].Volume = ItemvolumeSlider.Value / 100;
             //音量をアイテム側に保存
             SoundItem[SoundListView.SelectedIndex].volume = ItemvolumeSlider.Value / 100;
         }
@@ -258,19 +225,11 @@ namespace LaserHarpDriver
 
         private void stopBT_Click(object sender, RoutedEventArgs e)
         {
-
-            if (SoundListView.SelectedIndex == 0)
-                Player1.Stop();
-            else if (SoundListView.SelectedIndex == 1)
-                Player2.Stop();
-            else if (SoundListView.SelectedIndex == 2)
-                Player3.Stop();
-            else if (SoundListView.SelectedIndex == 3)
-                Player4.Stop();
-            else if (SoundListView.SelectedIndex == 4)
-                Player5.Stop();
-            else if (SoundListView.SelectedIndex == 5)
-                Player6.Stop();
+            var players = new[] { Player1, Player2, Player3, Player4, Player5, Player6 };
+            if (SoundListView.SelectedIndex >= 0 && SoundListView.SelectedIndex < players.Length)
+            {
+                players[SoundListView.SelectedIndex].Stop();
+            }
         }
 
         private void SettingBT_Click(object sender, RoutedEventArgs e)

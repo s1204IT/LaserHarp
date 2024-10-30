@@ -3,9 +3,13 @@
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net8.0-windows</TargetFramework>
-    <Nullable>enable</Nullable>
-    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>disable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
     <UseWPF>true</UseWPF>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <Optimize>True</Optimize>
   </PropertyGroup>
 
   <ItemGroup>
@@ -17,7 +21,7 @@
     <None Remove="resource\indexs\index4.json" />
     <None Remove="resource\indexs\index5.json" />
     <None Remove="resource\indexs\index6.json" />
-    <None Remove="resource\sounds\acceptbutton.mp3" />
+	<None Remove="resource\sounds\acceptbutton.mp3" />
   </ItemGroup>
 
   <ItemGroup>

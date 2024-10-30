@@ -1,14 +1,9 @@
 ﻿using Microsoft.Win32;
-using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Diagnostics.Eventing.Reader;
 using System.IO;
-using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
@@ -18,33 +13,33 @@ namespace LaserHarpDriver
 
     public class ListedItems//List化させるアイテムたち
     {
-        public string name { get; set; }
-        public string filepath { get; set; }
+        public required string name { get; set; }
+        public required string filepath { get; set; }
         public double volume { get; set; }
-        public ImageSource imagepath { get; set; }
-        public string imagepath_string {get; set; }//アイテムのファイルソースを保存する場所
+        public required ImageSource imagepath { get; set; }
+        public required string imagepath_string { get; set; }//アイテムのファイルソースを保存する場所
     }
     public class ListedJson//Jsonで扱えるアイテム形式
     {
-        public string name { get; set; }
-        public string filepath { get; set; }
+        public required string name { get; set; }
+        public required string filepath { get; set; }
         public double volume { get; set; }
-        public string imagepath { get; set; }
+        public required string imagepath { get; set; }
     }
     public class DicJson//json内の辞書
     {
-        public string filepath { get; set; }
-        public string hash { get; set; }
+        public required string filepath { get; set; }
+        public required string hash { get; set; }
     }
     public class DicShow//Listviewに表示する用のデータ
     {
-        public string filepath { get; set; }
-        public ImageSource imageSource { get; set; }
+        public required string filepath { get; set; }
+        public required ImageSource imageSource { get; set; }
     }
     public class retValue
     {
         public bool witch { get; set; }//trueなら音楽,falseなら画像
-        public string filepath { get; set; }
+        public required string filepath { get; set; }
     }
     static public class Backcode
     {   /// <summary>
@@ -57,17 +52,14 @@ namespace LaserHarpDriver
         {
             ObservableCollection<DicJson> turndicJsons = new ObservableCollection<DicJson>();
             StreamReader sr;
-            if (type)
-                sr = new StreamReader("./resource/indexs/dic.json", Encoding.UTF8);
-            else
-                sr = new StreamReader("./resource/indexs/img.json", Encoding.UTF8);
+            sr = new StreamReader(type ? "./resource/indexs/dic.json" : "./resource/indexs/img.json", Encoding.UTF8);
             string datas = sr.ReadToEnd();
             sr.Close();
             //目的のプリセット番号のjsonファイルを読み込む
             DicJson[] json = JsonSerializer.Deserialize<DicJson[]>(datas);
             foreach (DicJson dicitem in json)
             {
-                turndicJsons.Add(new DicJson {filepath = dicitem.filepath, hash = dicitem.hash });
+                turndicJsons.Add(new DicJson { filepath = dicitem.filepath, hash = dicitem.hash });
             }
             return turndicJsons;
         }
@@ -108,16 +100,21 @@ namespace LaserHarpDriver
         //書き込むアイテム,書き込み先のプリセットNo
         {
             ObservableCollection<ListedJson> write_Items = new ObservableCollection<ListedJson>();
-            foreach(ListedItems item in items)//書き込める形のデータ形式に変換(Uri書き込めないのつらい)
+            foreach (ListedItems item in items)//書き込める形のデータ形式に変換(Uri書き込めないのつらい)
             {
-                write_Items.Add( new ListedJson { name = item.name, imagepath = item.imagepath_string,
-                                filepath = item.filepath.ToString(), volume = item.volume });
+                write_Items.Add(new ListedJson
+                {
+                    name = item.name,
+                    imagepath = item.imagepath_string,
+                    filepath = item.filepath.ToString(),
+                    volume = item.volume
+                });
             }
             var json = JsonSerializer.Serialize(write_Items);
             //json形式のstringデータに変換
             File.WriteAllText("./resource/indexs/index" + Pri + ".json", json);
             //プリセットのインデックスに非同期書き込み
-            
+
         }
         /// <summary>
         /// 新しいファイルを追加します。(音楽データ)
@@ -125,7 +122,7 @@ namespace LaserHarpDriver
         /// filetypeはtrueなら音楽データ、falseは画像データ
         /// </summary>
         /// <returns></returns>
-        static public int AdditionalNewsound(ObservableCollection<DicJson> validate_target,bool filetype)//現在
+        static public int AdditionalNewsound(ObservableCollection<DicJson> validate_target, bool filetype)//現在
         //ファイルを新たに追加
         //返り値?の場合エラー表記
         {
@@ -133,20 +130,10 @@ namespace LaserHarpDriver
             string resourcePath;
             //ファイルの選択はwindows標準のダイアログから
             OpenFileDialog ofd = new OpenFileDialog();
-            if(filetype)
-            {
-                ofd.Title = "新しい音楽データを選択してください";
-                ofd.Filter = "音楽ファイル (*.mp3;*.wav;*.wma)|*.mp3;*.wav;*.wma|すべてのファイル (*.*)|*.*";
-                jsonpath = "./resource/indexs/dic.json";
-                resourcePath = "./resource/sounds/";
-            }
-            else
-            {
-                ofd.Title = "新しい画像データを選択してください";
-                ofd.Filter = "画像ファイル (*.jpg;*.png;*.bmp)|*.jpg;*.png;*.bmp|すべてのファイル (*.*)|*.*";
-                jsonpath = "./resource/indexs/img.json";
-                resourcePath = "./resource/images/";
-            }
+            ofd.Title = filetype ? "音楽データを選択" : "画像データを選択";
+            ofd.Filter = filetype ? "音楽ファイル (*.mp3;*.wav;*.wma;*.aac;*.flac;*.ogg;*.m4a;*.aiff;*.alac)|*.mp3;*.wav;*.wma;*.aac;*.flac;*.ogg;*.m4a;*.aiff;*.alac" : "画像ファイル (*.jpg;*.jpeg;*.png;*.bmp;*.gif;*.tiff;*.ico)|*.jpg;*.jpeg;*.png;*.bmp;*.gif;*.tiff;*.ico|すべてのファイル (*.*)|*.*";
+            jsonpath = filetype ? "./resource/indexs/dic.json" : "./resource/indexs/img.json";
+            resourcePath = filetype ? "./resource/sounds/" : "./resource/images/";
             ofd.InitialDirectory = @"C:\";
             ofd.Multiselect = false;
             ofd.FilterIndex = 1;
@@ -160,7 +147,6 @@ namespace LaserHarpDriver
                 //ファイル重複性チェック関係
                 bool flag_hash = false;
                 bool flag_head = false;
-                string detected_collision;
                 string hash_collision = "0";
                 string name_collision = "0";
                 int index_num = 0;
@@ -171,7 +157,7 @@ namespace LaserHarpDriver
                 {
                     fs.Seek(headerSize, SeekOrigin.Begin);//seekメソッドでファイルのヘッダ部分をスキップします。
                                                           //バイト分だけ読み取り位置を移動、つまり今回の場合は100バイト
-                    using(MD5 md5 = MD5.Create())//MD5インスタンスを生成、
+                    using (MD5 md5 = MD5.Create())//MD5インスタンスを生成、
                     {
                         byte[] hash = md5.ComputeHash(fs);//シークしたfsファイルストリームをmd5でハッシュ値計算
                         StringBuilder hashString = new StringBuilder();
@@ -184,17 +170,18 @@ namespace LaserHarpDriver
                 }
                 //ファイルのデータ部と名前の重複をチェック
                 //この場合は確認だけでいい
-                foreach (DicJson valid_item in validate_target) {
+                foreach (DicJson valid_item in validate_target)
+                {
                     if (validate_hash == valid_item.hash && Path.GetFileName(ofd.FileName) == valid_item.filepath)//完全重複により終了
                     { flag_hash = true; flag_head = true; break; }
-                    else if(Path.GetFileName(ofd.FileName) == valid_item.filepath)//ヘッダ重複により終了
+                    else if (Path.GetFileName(ofd.FileName) == valid_item.filepath)//ヘッダ重複により終了
                     { flag_hash = false; flag_head = true; name_collision = valid_item.filepath; hash_collision = valid_item.hash; break; }//ヘッダしかかぶってないのでハッシュはオフにする
                     else if (validate_hash == valid_item.hash)
                     { flag_hash = true; }//データ部の重複確認だけ
                 }
-                if(flag_hash && flag_head)
+                if (flag_hash && flag_head)
                 {
-                    MessageBox.Show("そのファイルはすでに存在します。","重複検知");
+                    MessageBox.Show("そのファイルはすでに存在します。", "重複検知");
                     return 1;//追加されなかったためリロード処理を行わない
                 }
                 else if (flag_head)
@@ -202,11 +189,11 @@ namespace LaserHarpDriver
                     result = MessageBox.Show("同じファイル名が存在します。" +
                         "ファイルを置き換えますか?(プリセットに登録されている場合はプリセット側も置き換えられます)",
                         "重複検知", MessageBoxButton.OKCancel, MessageBoxImage.Question);
-                    if(result == MessageBoxResult.OK)
+                    if (result == MessageBoxResult.OK)
                     {
                         foreach (DicJson dicitem_hash in validate_target)
                         {
-                            if(dicitem_hash.filepath == name_collision)//名前が重複している配列を探索
+                            if (dicitem_hash.filepath == name_collision)//名前が重複している配列を探索
                             {
                                 validate_target[index_num].hash = hash_collision;//発見したときハッシュ値(データ部)を入れ替えてファイルを上書き
                                 File.Copy(ofd.FileName, resourcePath + Path.GetFileName(ofd.FileName), true);
@@ -223,21 +210,22 @@ namespace LaserHarpDriver
                         "重複検知", MessageBoxButton.OKCancel, MessageBoxImage.Question);
                     if (result == MessageBoxResult.OK)
                     {
-                        File.Copy(@ofd.FileName, @resourcePath + Path.GetFileName(ofd.FileName),true);//選択されたときの処理
+                        File.Copy(@ofd.FileName, @resourcePath + Path.GetFileName(ofd.FileName), true);//選択されたときの処理
                         validate_target.Add(new DicJson { filepath = Path.GetFileName(ofd.FileName), hash = validate_hash });
                     }
                     return 1;//追加されなかったためリロード処理を行わない
                     //名前は違えど同じ内容のファイルがあるけどいい？という
                 }
-                else{//通常通り追加
-                    File.Copy(@ofd.FileName, @resourcePath + Path.GetFileName(ofd.FileName),true);//選択されたときの処理
-                    validate_target.Add(new DicJson { filepath = Path.GetFileName(ofd.FileName), hash = validate_hash});
+                else
+                {//通常通り追加
+                    File.Copy(@ofd.FileName, @resourcePath + Path.GetFileName(ofd.FileName), true);//選択されたときの処理
+                    validate_target.Add(new DicJson { filepath = Path.GetFileName(ofd.FileName), hash = validate_hash });
                 }
-                MessageBox.Show(Path.GetFileName(ofd.FileName) + "\n"+validate_target[0].ToString());
+                MessageBox.Show(Path.GetFileName(ofd.FileName) + "\n" + validate_target[0].ToString());
                 var json = JsonSerializer.Serialize(validate_target);
                 File.WriteAllText(jsonpath, json);
                 return 0;
-                
+
             }
             else
             {
